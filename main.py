@@ -2,6 +2,7 @@ import os
 import requests
 import time
 from twilio.rest import Client
+from flask import Flask
 
 # Carrega variáveis de ambiente
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
@@ -12,6 +13,12 @@ BETSAPI_TOKEN = os.getenv("BETSAPI_TOKEN")
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
+app = Flask(__name__)
+
+# Rota simples para garantir que o servidor Flask esteja funcionando
+@app.route('/')
+def health_check():
+    return "Servidor funcionando!"
 
 def send_whatsapp_alert(message):
     client.messages.create(
@@ -75,6 +82,12 @@ def main_loop():
             print(f"Erro: {e}")
             time.sleep(420)
 
+# Executa o loop principal em segundo plano
+import threading
+threading.Thread(target=main_loop, daemon=True).start()
 
+# Rodando o servidor Flask na porta fornecida pela plataforma de nuvem (ex: Render.com)
 if __name__ == "__main__":
-    main_loop()
+    # A variável 'PORT' é definida pela nuvem
+    port = int(os.environ.get("PORT", 5000))  # Padrão para 5000 caso a variável não esteja definida
+    app.run(host="0.0.0.0", port=port)

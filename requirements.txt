@@ -1,3 +1,7 @@
 requests
 twilio
 python-dotenv
+Flask==2.1.2
+requests==2.32.4
+twilio==9.6.3
+
